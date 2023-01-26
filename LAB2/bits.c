@@ -5,7 +5,7 @@
  *   Points: 3
  */
 int bitAnd(int x, int y) {
-  return 2;
+  return ~(~x | ~y);
 }
 
 /* 
@@ -16,7 +16,9 @@ int bitAnd(int x, int y) {
  *   Points: 6
  */
 int getByte(int x, int n) {
-  return 2;
+  //return (x & (0xff << n * 8));
+  //return (x >> (n * 8)) & 0xff;
+  return 0xff & ((unsigned int)x >> (n << 3));
 }
 
 /* 
@@ -28,7 +30,14 @@ int getByte(int x, int n) {
  *  Points: 6
  */
 int byteSwap(int x, int n, int m) {
-    return 2;
+    int first = getByte(x, n);
+    int second = getByte(x, m);
+    int mask_first = 0xff << (n << 3);
+    int mask_second = 0xff << (m << 3);
+
+    int mask = (mask_first | mask_second) ^ 0xffffffff;
+
+    return (x & mask) | (first << (m << 3)) | (second << (n << 3));
 }
 
 /* 
@@ -39,7 +48,7 @@ int byteSwap(int x, int n, int m) {
  *   Points: 10
  */
 int logicalShift(int x, int n) {
-  return 2;
+  return (unsigned int)x >> n;
 }
 
 /*
@@ -49,7 +58,18 @@ int logicalShift(int x, int n) {
  *   Points: 15
  */
 int bitCount(int x) {
-  return 2;
+ // return (x >> 4) & 00001111;
+ int mask_1 = 0x55555555; //01010101
+ int mask_2 = 0x33333333; //00110011
+ int mask_3 = 0x0f0f0f0f; //00001111
+ int mask_4 = 0x00ff00ff; 
+ int mask_5 = 0x0000ffff;
+ x = (x & mask_1) + ((x >> 1) & mask_1);
+ x = (x & mask_2) + ((x >> 2) & mask_2);
+ x = (x & mask_3) + ((x >> 4) & mask_3);
+ x = (x & mask_4) + ((x >> 8) & mask_4);
+ x = (x & mask_5) + ((x >> 16) & mask_5);
+ return x;
 }
 
 /* 
@@ -59,7 +79,8 @@ int bitCount(int x) {
  *   Points: 15
  */
 int bang(int x) {
-  return 2;
+  int not_x = ~x + 1;
+  return ((not_x | x) >> 31) + 1;
 }
 
 /*
@@ -69,5 +90,10 @@ int bang(int x) {
  *   Points: 15
  */
 int bitParity(int x) {
-  return 2;
+  int sixt_x = x ^ x >> 16;
+  int eight_x = sixt_x ^ sixt_x >> 8;
+  int four_x = eight_x ^ eight_x >> 4;
+  int two_x = four_x ^ four_x >> 2;
+  int final_x = two_x ^ two_x >> 1;
+  return final_x & 1;
 }

@@ -1,11 +1,12 @@
 #include "bitops.h"
+#include <stdio.h>
 
 /*
  * Return and of x and y
  * Points: 3
  */
 int and_op(int x, int y) {
-  return 2;
+  return (x & y);
 }
 
 /* 
@@ -13,7 +14,7 @@ int and_op(int x, int y) {
  * Points: 3
  */
 int or_op(int x, int y) {
-  return 2;
+  return (x | y);
 }
 
 /*
@@ -21,7 +22,7 @@ int or_op(int x, int y) {
  * Points: 3
  */
 int xor_op(int x, int y) {
-  return 2;
+  return (x ^ y);
 }
 
 
@@ -30,7 +31,9 @@ int xor_op(int x, int y) {
  * Points: 7
  */
 int masking_and(int x, int b) {
-  return 2;
+  	//unsigned int mask = 0xff;
+	//return (x & ~(mask >> b * 8));
+	return (x & ~(0xff << b * 8));
 }
 
 /*
@@ -38,7 +41,7 @@ int masking_and(int x, int b) {
  * Points: 7
  */
 int masking_or(int x, int b) {
-  return 2;
+  return (x | (0xff << b * 8));
 }
 
 /*
@@ -46,7 +49,7 @@ int masking_or(int x, int b) {
  * Points: 7
  */
 int masking_xor(int x, int b) {
-  return 2;
+  return (x ^ (0xff << b * 8));
 }
 
 /*
@@ -54,7 +57,7 @@ int masking_xor(int x, int b) {
  * Points: 3
  */
 int shifting_left_op(int x, int sc) {
-  return 2;
+  return x << sc;
 }
 
 /*
@@ -62,7 +65,7 @@ int shifting_left_op(int x, int sc) {
  * Points: 3
  */
 int shifting_right_op(int x, int sc) {
-  return 2;
+  return x >> sc;
 }
 
 
@@ -71,7 +74,7 @@ int shifting_right_op(int x, int sc) {
  * Points: 3
  */
 int bang(int x) {
-  return 2;
+  return !x;
 }
 
 /*
@@ -79,5 +82,17 @@ int bang(int x) {
  * Points: 30
  */
 void bit_conversion(int x) {
-
+	char * bin[8];
+	int i = 0;
+	while(x > 0) {
+		if(x % 2 == 1)
+			bin[i] = "1";
+		else
+			bin[i] = "0";
+		x /= 2;
+		i++;
+	}
+	for(int a = i - 1; a >= 0; a--)
+		printf("%s", bin[a]);
+	printf("\n");
 }

@@ -18,7 +18,7 @@ int bitAnd(int x, int y) {
 int getByte(int x, int n) {
   //return (x & (0xff << n * 8));
   //return (x >> (n * 8)) & 0xff;
-  return 0xff & ((unsigned int)x >> (n << 3));
+  return 0xff & (x >> (n << 3));
 }
 
 /* 
@@ -35,7 +35,7 @@ int byteSwap(int x, int n, int m) {
     int mask_first = 0xff << (n << 3);
     int mask_second = 0xff << (m << 3);
 
-    int mask = (mask_first | mask_second) ^ 0xffffffff;
+    int mask = (mask_first | mask_second) ^ (-1);
 
     return (x & mask) | (first << (m << 3)) | (second << (n << 3));
 }
@@ -48,7 +48,10 @@ int byteSwap(int x, int n, int m) {
  *   Points: 10
  */
 int logicalShift(int x, int n) {
-  return (unsigned int)x >> n;
+  //return (unsigned int)x >> n;
+  int mask = 1 << (~n + 32);
+  mask = mask | (mask + (~1) + 1);
+  return (x >> n) & mask;
 }
 
 /*
@@ -59,17 +62,15 @@ int logicalShift(int x, int n) {
  */
 int bitCount(int x) {
  // return (x >> 4) & 00001111;
- int mask_1 = 0x55555555; //01010101
- int mask_2 = 0x33333333; //00110011
- int mask_3 = 0x0f0f0f0f; //00001111
- int mask_4 = 0x00ff00ff; 
- int mask_5 = 0x0000ffff;
- x = (x & mask_1) + ((x >> 1) & mask_1);
- x = (x & mask_2) + ((x >> 2) & mask_2);
- x = (x & mask_3) + ((x >> 4) & mask_3);
- x = (x & mask_4) + ((x >> 8) & mask_4);
- x = (x & mask_5) + ((x >> 16) & mask_5);
- return x;
+ //int mask_1 = 0x55; //01010101;
+ //x = (x & mask_1) + ((x >> 1) & mask_1);
+ int four_mask = 1 | (1 << 8) | (1 << 16) | (1 << 24);
+ int one_mask = 0xff;
+ 
+ int y = (x & four_mask) + ((x >> 1) & four_mask) + ((x >> 2) & four_mask) + ((x >> 3) & four_mask) + ((x >> 4) & four_mask) + ((x >> 5) & four_mask) + ((x >> 6) & four_mask) + ((x >> 7) & four_mask);
+ 
+ int result = (y & one_mask) + ((y >> 8) & one_mask) + ((y >> 16) & one_mask) + ((y >> 24) & one_mask);
+ return result;
 }
 
 /* 
@@ -93,7 +94,6 @@ int bitParity(int x) {
   int sixt_x = x ^ x >> 16;
   int eight_x = sixt_x ^ sixt_x >> 8;
   int four_x = eight_x ^ eight_x >> 4;
-  int two_x = four_x ^ four_x >> 2;
-  int final_x = two_x ^ two_x >> 1;
-  return final_x & 1;
+  int final_x = four_x & 0xf;
+  return (0x6996 >> final_x) & 1;
 }

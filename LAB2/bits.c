@@ -30,8 +30,8 @@ int getByte(int x, int n) {
  *  Points: 6
  */
 int byteSwap(int x, int n, int m) {
-    int first = getByte(x, n);
-    int second = getByte(x, m);
+    int first = 0xff & (x >> (n << 3));
+    int second = 0xff & (x >> (m << 3));
     int mask_first = 0xff << (n << 3);
     int mask_second = 0xff << (m << 3);
 
@@ -94,6 +94,7 @@ int bitParity(int x) {
   int sixt_x = x ^ x >> 16;
   int eight_x = sixt_x ^ sixt_x >> 8;
   int four_x = eight_x ^ eight_x >> 4;
-  int final_x = four_x & 0xf;
-  return (0x6996 >> final_x) & 1;
+  int two_x = four_x ^ four_x >> 2;
+  int final_x = two_x ^ two_x >> 1;
+  return final_x & 1;
 }

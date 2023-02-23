@@ -6,10 +6,10 @@
 int main(int argc, char *argv[]){
 	
 	if(argc > 2){
-		printf("Too many arguments");
+		printf("Too many arguments\n");
 		exit(EXIT_FAILURE);
 	}else if(argc < 2){
-		printf("No input given");
+		printf("No input given\n");
 		exit(EXIT_FAILURE);
 	}
 	double number = atof(argv[1]);
@@ -55,12 +55,15 @@ int main(int argc, char *argv[]){
 	//printf("%s\n", fracbin);
 	int a = 0;
 	int indexp = 0;
+	int b = 0;
 	while(indexp != 1){
 		if(a > 7){
-			if(fracbin[8 - a] == '1')
+			if(fracbin[b] == '1')
 				indexp = 1;
-			else
+			else{
 				a++;
+				b++;
+			}
 		}else{
 			if(bin[a] == '1')
 				indexp = 1;
@@ -70,6 +73,7 @@ int main(int argc, char *argv[]){
 	}
 	int E = 7 - a;
 	int exp = E + 127;
+	//printf("A: %d, E: %d, Exp: %d\n", a, E, exp);
 	size = sizeof(exp) * 2;
 	char *expbin = malloc(1 + size);
 	expbin[size] = '\0';
@@ -94,6 +98,7 @@ int main(int argc, char *argv[]){
 			printf("%c", fracbin[a - 8]);
 		a++;
 	}
+	printf("\n");
 }
 
 

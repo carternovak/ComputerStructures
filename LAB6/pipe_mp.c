@@ -12,6 +12,10 @@ int main(int argc, char* argv[]){
 
 	int fd[2];
 	pipe(fd);
+	if(pipe(fd) < 0){
+		printf("Error");
+		exit(EXIT_FAILURE);
+	}
 	int size = strlen(argv[1]);
 	char result[size];
 	int returnVal = fork();

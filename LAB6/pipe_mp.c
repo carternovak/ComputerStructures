@@ -9,7 +9,7 @@ int main(int argc, char* argv[]){
 		printf("Error: Incorrect number of arguments\n");
 		exit(EXIT_FAILURE);
 	}
-
+	
 	int fd[2];
 	pipe(fd);
 	if(pipe(fd) < 0){
@@ -17,13 +17,17 @@ int main(int argc, char* argv[]){
 		exit(EXIT_FAILURE);
 	}
 	int size = strlen(argv[1]);
+	if(size == 0){
+		printf("%s", argv[1]);
+		return 0;
+	}
 	char result[size];
 	int returnVal = fork();
 	if(returnVal == -1){
 		printf("Error");
 		exit(EXIT_FAILURE);
 	}else if(returnVal > 0){
-		write(fd[1], argv[1], size); 
+		write(fd[1], argv[1], size);	
 	}else if(returnVal == 0){
 		read(fd[0], result, size);
 		printf("%s\n", result);

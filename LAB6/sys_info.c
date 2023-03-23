@@ -4,7 +4,7 @@
 #include <string.h>
 #include <sys/types.h>
 #include <sys/wait.h>
-
+#define SIZE 30
 int main(int argc, char* argv[]){
 
 	if(argc != 3){
@@ -23,7 +23,7 @@ int main(int argc, char* argv[]){
 		printf("Pipe 2 Error");
 		exit(EXIT_FAILURE);
 	}*/
-	char temp[strlen(argv[2])];
+	char temp[SIZE];
 	//char temp2[strlen(argv[2])];
 	int returnVal = fork();
 	if(returnVal < 0){
@@ -31,34 +31,32 @@ int main(int argc, char* argv[]){
 		exit(EXIT_FAILURE);
 	}else if(returnVal > 0){
 		//write(fd1[1], argv[1], strlen(argv[1]));
-		write(fd1[1], argv[2], strlen(argv[2]));
+		write(fd1[1], argv[2], SIZE);
 		wait(NULL);
 	}else if(returnVal == 0){
-		read(fd1[0], temp, strlen(argv[2]));
+		read(fd1[0], temp, SIZE);
 		
 		char *ret;
 		ret = strstr(argv[1], "/bin/");
 		if(ret){
-			execl(ret, ret, temp, NULL);
+			if(execl(ret, ret, temp, NULL) != 0){
+				printf("Error: Invalid command\n");
+				exit(EXIT_FAILURE);
+			}else{
+				execl(ret, ret, temp, NULL);
+			}
 		}else{
 			char bintemp[] = "/bin/";
 			char *arg1 = argv[1];
 			strcat(bintemp, arg1);
-			execl(bintemp, bintemp, temp, NULL);
+			if(execl(bintemp, bintemp, temp, NULL) != 0){
+				printf("Error: Invalid command\n");
+				exit(EXIT_FAILURE);
+			}else{
+				execl(bintemp, bintemp, temp, NULL);
+			}
 		}
 	}
-	/*
-	char *ret;
-	ret = strstr(argv[1], "/bin/");
-	if(ret){
-		execl(ret, ret, temp, NULL);
-	}else{
-		char bintemp[] = "/bin/";
-		char *arg1 = argv[1];
-		strcat(bintemp, arg1);
-		execl(bintemp, bintemp, temp, NULL);
-	}
-	*/
 	return 0;
 
 }

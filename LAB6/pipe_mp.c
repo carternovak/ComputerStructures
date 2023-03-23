@@ -4,6 +4,7 @@
 #include <string.h>
 #include <sys/types.h>
 #include <sys/wait.h>
+#define SIZE 16
 
 int main(int argc, char* argv[]){
 
@@ -23,16 +24,20 @@ int main(int argc, char* argv[]){
 		printf("%s", argv[1]);
 		return 0;
 	}
-	char result[size];
+	char result[SIZE];
 	int returnVal = fork();
 	if(returnVal == -1){
 		printf("Error");
 		exit(EXIT_FAILURE);
 	}else if(returnVal > 0){
-		write(fd[1], argv[1], size);
-		wait(NULL);	
+		write(fd[1], argv[1], SIZE);
+		int var;
+		wait(&var);
+		if(var != 0){
+			exit(EXIT_FAILURE);
+		}	
 	}else if(returnVal == 0){
-		read(fd[0], result, size);
+		read(fd[0], result, SIZE);
 		printf("%s\n", result);
 	}
 

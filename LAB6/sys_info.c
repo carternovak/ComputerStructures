@@ -38,25 +38,29 @@ int main(int argc, char* argv[]){
 		
 		char *ret;
 		ret = strstr(argv[1], "/bin/");
+		//printf("%s\n", ret);
 		if(ret){
 			if(execl(ret, ret, temp, NULL) != 0){
 				printf("Error: Invalid command\n");
 				exit(EXIT_FAILURE);
-			}else{
-				execl(ret, ret, temp, NULL);
 			}
+			
+			//execl(ret, ret, temp, NULL);
 		}else{
-			char bintemp[] = "/bin/";
+			char bintemp[20] = "/bin/";
 			char *arg1 = argv[1];
 			strcat(bintemp, arg1);
+			//printf("%s\n", bintemp);
+			
 			if(execl(bintemp, bintemp, temp, NULL) != 0){
 				printf("Error: Invalid command\n");
 				exit(EXIT_FAILURE);
-			}else{
-				execl(bintemp, bintemp, temp, NULL);
 			}
+			
+			//execl(bintemp, bintemp, temp, NULL);
 		}
 	}
+
 	return 0;
 
 }

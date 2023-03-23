@@ -2,6 +2,8 @@
 #include <unistd.h>
 #include <stdlib.h>
 #include <string.h>
+#include <sys/types.h>
+#include <sys/wait.h>
 
 int main(int argc, char* argv[]){
 
@@ -27,7 +29,8 @@ int main(int argc, char* argv[]){
 		printf("Error");
 		exit(EXIT_FAILURE);
 	}else if(returnVal > 0){
-		write(fd[1], argv[1], size);	
+		write(fd[1], argv[1], size);
+		wait(NULL);	
 	}else if(returnVal == 0){
 		read(fd[0], result, size);
 		printf("%s\n", result);

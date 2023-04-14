@@ -20,40 +20,33 @@ int main(int argc, char* argv[]){
 		array[i] = i*atoi(argv[1]);
 		//printf("%d\n", array[i]);
 	}
-	//i = atoi(argv[1]);
-	i = 0;
-	int total = 0;
-	int childsum = 0;
-	int parentsum = 0;
 	int fd[2];
 	pipe(fd);
+	pid_t returnVal = fork();
 	char result[50];
-	char sum[50];
-	int returnVal = fork();
 	if(returnVal == -1){
 		printf("Error");
 		exit(EXIT_FAILURE);
 	}else if(returnVal == 0){
-		wait(NULL);
-		i = ASIZE / 2;
-		while(i >= ASIZE / 2 && i < ASIZE){
+		int childsum = 0;
+		for(int i = ASIZE/2; i < ASIZE; i++)
 			childsum += array[i];
-			i++;
-		}
-		read(fd[0], sum, 50);
-		total = atoi(sum);
-		//printf("Test: %s\n", sum);
-		printf("Total: %d\n", childsum + total);
-	}else if(returnVal > 0){
-		while(i < ASIZE / 2){
-			parentsum += array[i];
-			i++;
-		}
-		sprintf(result, "%d", parentsum);
+
+		sprintf(result, "%d", childsum);
 		write(fd[1], result, 50);
-		//wait(NULL);
+		//printf("Child sum: %d\n", childsum);
+		exit(childsum);
+	}else if(returnVal > 0){
+		char childPipe[50];
+		read(fd[0], childPipe, 50);
+		int pipeNum = atoi(childPipe);
+		int parentsum = 0;
+		for(int i = 0; i < ASIZE/2; i++){
+			parentsum += array[i];
+		}
 		//printf("Parent sum: %d\n", parentsum);
+		wait(NULL);
+		printf("%d\n", parentsum + pipeNum);
+		return 0;
 	}
-	//printf("Total: %d\n", total);
-	return 0;
 }

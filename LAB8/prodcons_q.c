@@ -13,6 +13,7 @@ void* func1(void* arg){
 		char randLetter = 'a' + (rand() % 26);
 
 		sem_wait(&sema1);
+		sem_wait(&mutex);
 
 		globalArr[i] = randLetter;
 		printf("writer ID: %d, char written: %c\n", *idp, randLetter);
@@ -29,6 +30,7 @@ void* func2(void* arg){
 		char randLetter = 'A' + (rand() % 26);
 
 		sem_wait(&sema1);
+		sem_wait(&mutex);
 
 		globalArr[i] = randLetter;
 		printf("writer ID: %d, char written: %c\n", *idp, randLetter);
@@ -43,10 +45,13 @@ void* func3(void* arg){
 	int* idp = (int*)arg;
 	char c;
 	for(int i = 0; i < 5; i++){
-		//sem_wait(&sema2);
+		sem_wait(&sema2);
 		sem_wait(&mutex);
+
 		c = globalArr[i];
 		printf("reader ID: %d, char read: %c\n", *idp, c);
+
+		sem_post(&mutex);
 		sem_post(&sema1);
 	}
 	return NULL;
@@ -61,7 +66,7 @@ int main(int argc, char* argv[]){
 
 	sem_init(&sema1, 1, SIZE);
 	sem_init(&sema2, 1, 0);
-	sem_init(&mutex, 1, 0);
+	sem_init(&mutex, 1, 1);
 
 	pthread_t threads[8];
 	int ids[8] = {0, 1, 2, 3, 0, 1, 2, 3};

@@ -5,15 +5,19 @@
 #define SIZE 5
 
 char globalArr[SIZE];
-sem_t sema1, sema2;
+sem_t sema1, sema2, mutex;
 
 void* func1(void* arg){
 	int* idp = (int*)arg;
 	for(int i = 0; i < 5; i++){
-		sem_wait(&sema1);
 		char randLetter = 'a' + (rand() % 26);
+
+		sem_wait(&sema1);
+
 		globalArr[i] = randLetter;
 		printf("writer ID: %d, char written: %c\n", *idp, randLetter);
+		
+		sem_post(&mutex);
 		sem_post(&sema2);
 	}
 	return NULL;
@@ -22,10 +26,14 @@ void* func1(void* arg){
 void* func2(void* arg){
 	int* idp = (int*)arg;
 	for(int i = 0; i < 5; i++){
-		sem_wait(&sema1);
 		char randLetter = 'A' + (rand() % 26);
+
+		sem_wait(&sema1);
+
 		globalArr[i] = randLetter;
 		printf("writer ID: %d, char written: %c\n", *idp, randLetter);
+		
+		sem_post(&mutex);
 		sem_post(&sema2);
 	}
 	return NULL;
@@ -33,9 +41,12 @@ void* func2(void* arg){
 
 void* func3(void* arg){
 	int* idp = (int*)arg;
+	char c;
 	for(int i = 0; i < 5; i++){
-		sem_wait(&sema2);
-		printf("reader ID: %d, char read: %c\n", *idp, globalArr[i]);
+		//sem_wait(&sema2);
+		sem_wait(&mutex);
+		c = globalArr[i];
+		printf("reader ID: %d, char read: %c\n", *idp, c);
 		sem_post(&sema1);
 	}
 	return NULL;
@@ -50,6 +61,7 @@ int main(int argc, char* argv[]){
 
 	sem_init(&sema1, 1, SIZE);
 	sem_init(&sema2, 1, 0);
+	sem_init(&mutex, 1, 0);
 
 	pthread_t lower1, lower2, upper1, upper2;
 	pthread_t buffer[4];
@@ -69,5 +81,13 @@ int main(int argc, char* argv[]){
 		buffId[i] = i;
 		pthread_create(&buffer[i], NULL, func3, (void*)&buffId[i]);
 	}
+
+	pthread_join(lower1, NULL);
+	pthread_join(lower2, NULL);
+	pthread_join(upper1, NULL);
+	pthread_join(upper2, NULL);
+
+	for(int i = 0; i < 4; i++)
+		pthread_join(buffer[i], NULL);
 	return 0;
 }

@@ -2,44 +2,55 @@
 #include <stdlib.h>
 #include <pthread.h>
 #include <semaphore.h>
+#include <sys/wait.h>
+#include <unistd.h>
 #define SIZE 5
 
-char globalArr[SIZE + 1];
+char globalArr[SIZE];
 sem_t sema1, sema2, mutex;
 int a = 0, b = 0;
+int lowercaseLetters = 0, uppercaseLetters = 0;
 
 void* func1(void* arg){
 	int* idp = (int*)arg;
-	for(int i = 0; i < SIZE; i++){
-		char randLetter = 'a' + (rand() % 26);
+	if(lowercaseLetters < 10){
+		for(int i = 0; i < SIZE; i++){
+			char randLetter = 'a' + (rand() % 26);
 
-		sem_wait(&sema1);
-		sem_wait(&mutex);
+			sem_wait(&sema1);
+			sem_wait(&mutex);
 
-		globalArr[a] = randLetter;
-		printf("writer ID: %d, char written: %c\n", *idp, randLetter);
-		a = (a + 1) % SIZE;
+			globalArr[a] = randLetter;
+			lowercaseLetters++;
+			printf("writer ID: %d, char written: %c\n", *idp, randLetter);
+			a = (a + 1) % SIZE;
 
-		sem_post(&mutex);
-		sem_post(&sema2);
+			sem_post(&mutex);
+			sem_post(&sema2);
+			//wait(NULL);
+		}
 	}
 	return NULL;
 }
 
 void* func2(void* arg){
 	int* idp = (int*)arg;
-	for(int i = 0; i < SIZE; i++){
-		char randLetter = 'A' + (rand() % 26);
+	if(uppercaseLetters < 10){
+		for(int i = 0; i < SIZE; i++){
+			char randLetter = 'A' + (rand() % 26);
 
-		sem_wait(&sema1);
-		sem_wait(&mutex);
+			sem_wait(&sema1);
+			sem_wait(&mutex);
 
-		globalArr[b] = randLetter;
-		printf("writer ID: %d, char written: %c\n", *idp, randLetter);
-		a = (a + 1) % SIZE;
+			globalArr[b] = randLetter;
+			uppercaseLetters++;
+			printf("writer ID: %d, char written: %c\n", *idp, randLetter);
+			a = (a + 1) % SIZE;
 
-		sem_post(&mutex);
-		sem_post(&sema2);
+			sem_post(&mutex);
+			sem_post(&sema2);
+			//wait(NULL);
+		}
 	}
 	return NULL;
 }
@@ -68,7 +79,7 @@ int main(int argc, char* argv[]){
 	}
 	(void)argv[0];
 
-	sem_init(&sema1, 1, SIZE);
+	sem_init(&sema1, 1, 1);
 	sem_init(&sema2, 1, 0);
 	sem_init(&mutex, 1, 1);
 

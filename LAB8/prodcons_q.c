@@ -6,18 +6,20 @@
 
 char globalArr[SIZE];
 sem_t sema1, sema2, mutex;
+int a = 0, b = 0;
 
 void* func1(void* arg){
 	int* idp = (int*)arg;
-	for(int i = 0; i < 5; i++){
+	for(int i = 0; i < SIZE; i++){
 		char randLetter = 'a' + (rand() % 26);
 
 		sem_wait(&sema1);
 		sem_wait(&mutex);
 
-		globalArr[i] = randLetter;
+		globalArr[a] = randLetter;
 		printf("writer ID: %d, char written: %c\n", *idp, randLetter);
-		
+		a = (a + 1) % SIZE;
+
 		sem_post(&mutex);
 		sem_post(&sema2);
 	}
@@ -26,15 +28,16 @@ void* func1(void* arg){
 
 void* func2(void* arg){
 	int* idp = (int*)arg;
-	for(int i = 0; i < 5; i++){
+	for(int i = 0; i < SIZE; i++){
 		char randLetter = 'A' + (rand() % 26);
 
 		sem_wait(&sema1);
 		sem_wait(&mutex);
 
-		globalArr[i] = randLetter;
+		globalArr[b] = randLetter;
 		printf("writer ID: %d, char written: %c\n", *idp, randLetter);
-		
+		a = (a + 1) % SIZE;
+
 		sem_post(&mutex);
 		sem_post(&sema2);
 	}
@@ -44,12 +47,13 @@ void* func2(void* arg){
 void* func3(void* arg){
 	int* idp = (int*)arg;
 	char c;
-	for(int i = 0; i < 5; i++){
+	for(int i = 0; i < SIZE; i++){
 		sem_wait(&sema2);
 		sem_wait(&mutex);
 
-		c = globalArr[i];
+		c = globalArr[b];
 		printf("reader ID: %d, char read: %c\n", *idp, c);
+		b = (b + 1) % SIZE;
 
 		sem_post(&mutex);
 		sem_post(&sema1);
@@ -83,33 +87,5 @@ int main(int argc, char* argv[]){
 	for(int i = 0; i < 8; i++)
 		pthread_join(threads[i], NULL);
 
-	/*
-	pthread_t lower1, lower2, upper1, upper2;
-	pthread_t buffer[4];
-	int lowerId1 = 0, lowerId2 = 1, upperId1 = 2, upperId2 = 3;
-	int buffId[4];
-
-	// lowercase function
-	pthread_create(&lower1, NULL, func1, (void*)&lowerId1);
-	pthread_create(&lower2, NULL, func1, (void*)&lowerId2);
-
-	// uppercase function
-	pthread_create(&upper1, NULL, func2, (void*)&upperId1);
-	pthread_create(&upper2, NULL, func2, (void*)&upperId2);
-
-	// buffer function
-	for(int i = 0; i < 4; i++){
-		buffId[i] = i;
-		pthread_create(&buffer[i], NULL, func3, (void*)&buffId[i]);
-	}
-
-	pthread_join(lower1, NULL);
-	pthread_join(lower2, NULL);
-	pthread_join(upper1, NULL);
-	pthread_join(upper2, NULL);
-
-	for(int i = 0; i < 4; i++)
-		pthread_join(buffer[i], NULL);
-	*/
 	return 0;
 }

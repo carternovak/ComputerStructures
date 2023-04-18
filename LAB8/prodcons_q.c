@@ -63,6 +63,22 @@ int main(int argc, char* argv[]){
 	sem_init(&sema2, 1, 0);
 	sem_init(&mutex, 1, 0);
 
+	pthread_t threads[8];
+	int ids[8] = {0, 1, 2, 3, 0, 1, 2, 3};
+
+	for(int i = 0; i < 8; i++){
+		if(i < 2)
+			pthread_create(&threads[i], NULL, func1, &ids[i]);
+		if(i >= 2 && i < 4)
+			pthread_create(&threads[i], NULL, func2, &ids[i]);
+		if(i >= 4 && i < 8)
+			pthread_create(&threads[i], NULL, func3, &ids[i]);
+	}
+
+	for(int i = 0; i < 8; i++)
+		pthread_join(threads[i], NULL);
+
+	/*
 	pthread_t lower1, lower2, upper1, upper2;
 	pthread_t buffer[4];
 	int lowerId1 = 0, lowerId2 = 1, upperId1 = 2, upperId2 = 3;
@@ -89,5 +105,6 @@ int main(int argc, char* argv[]){
 
 	for(int i = 0; i < 4; i++)
 		pthread_join(buffer[i], NULL);
+	*/
 	return 0;
 }

@@ -4,7 +4,7 @@
 #include <semaphore.h>
 #define SIZE 5
 
-char globalArr[SIZE];
+char globalArr[SIZE + 1];
 sem_t sema1, sema2, mutex;
 int a = 0, b = 0;
 
